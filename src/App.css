@@ -1,0 +1,158 @@
+/* --- 🎨 Midnight Sapphire & Neon Design System --- */
+:root {
+  /* Dynamic Backgrounds */
+  --bg-deep: #020617;        /* Deep Space Navy */
+  --bg-accent: #0f172a;
+  --primary: #8b5cf6;       /* Electric Violet */
+  --secondary: #06b6d4;      /* Cyber Cyan */
+  --primary-glow: rgba(139, 92, 246, 0.4);
+  
+  /* Status Colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --glass: rgba(15, 23, 42, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  
+  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* --- 🧊 Core Setup --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  background-color: var(--bg-deep);
+  color: var(--text-main);
+  font-family: var(--font-main);
+}
+
+.App {
+  min-height: 100vh;
+  /* ✨ LUXURY BACKGROUND: Mesh Gradient with fixed attachment */
+  background: 
+    radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.15), transparent 35%),
+    radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.15), transparent 35%),
+    var(--bg-deep);
+  background-attachment: fixed;
+}
+
+/* --- 💎 The Glass Card --- */
+.glass-card {
+  background: var(--glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+}
+
+/* --- 🌟 Gradient Typography --- */
+.text-gradient {
+  background: linear-gradient(135deg, #fff 40%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+}
+
+/* --- ⚡ THE HIGHLIGHTED SEND BUTTON --- */
+.chat-send-btn {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  
+  /* Initial Glow */
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  /* Breathing Animation */
+  animation: glowPulse 2s infinite;
+}
+
+.chat-send-btn:hover {
+  transform: scale(1.1) translateY(-2px);
+  filter: brightness(1.2);
+  /* Stronger Cyan glow on hover */
+  box-shadow: 0 0 30px rgba(6, 182, 212, 0.8);
+}
+
+/* --- 💓 The Breathing Glow Animation --- */
+@keyframes glowPulse {
+  0% { box-shadow: 0 0 5px rgba(139, 92, 246, 0.4); }
+  50% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.8), 0 0 15px rgba(6, 182, 212, 0.5); }
+  100% { box-shadow: 0 0 5px rgba(139, 92, 246, 0.4); }
+}
+
+/* --- 🧭 Other UI Essentials --- */
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+input, select {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 14px;
+  color: white;
+  width: 100%;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.badge-safe { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+.badge-target { background: rgba(6, 182, 212, 0.2); color: #06b6d4; }
+.badge-dream { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+
+.fade-in {
+  animation: entrance 0.8s ease-out forwards;
+}
+
+@keyframes entrance {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1100px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+}
