@@ -4,11 +4,12 @@ export default function ChatAI({ userProfile }) {
   const [messages, setMessages] = useState([
     { 
       id: 1, 
-      text: `Hi ${userProfile?.fullName || 'there'}! I see you're interested in ${userProfile?.major || 'studying abroad'}. How can I help you today?`, 
+      text: `Hi ${userProfile?.fullName || 'there'}! I'm Gemini, your AI counsellor. Ready to talk about ${userProfile?.major || 'your studies'}?`, 
       sender: "ai" 
     }
   ]);
   const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -19,45 +20,54 @@ export default function ChatAI({ userProfile }) {
     scrollToBottom();
   }, [messages]);
 
-  const generateAIResponse = (userText) => {
-    const text = userText.toLowerCase();
-    const gpa = parseFloat(userProfile?.gpa);
-    
-    // Logic: AI understands your GPA
-    if (text.includes("chance") || text.includes("gpa")) {
-      if (gpa >= 9.0) return `With your impressive GPA of ${gpa}, you have a strong shot at "Dream" schools like Stanford or MIT!`;
-      if (gpa >= 7.5) return `Your ${gpa} GPA is solid. You should focus on "Target" schools in the UK or Canada.`;
-      return `A GPA of ${gpa} is a starting point. Let's look at universities in Germany where they value specific subject credits!`;
-    }
-
-    // Logic: AI understands your Budget
-    if (text.includes("money") || text.includes("cost") || text.includes("budget")) {
-      return `Based on your yearly budget of $${userProfile?.budget}, I recommend looking at ${userProfile?.targetCountry === 'Germany' ? 'Public Universities in Germany' : 'Scholarship programs in ' + userProfile?.targetCountry}.`;
-    }
-
-    // Default Response
-    return `That's interesting! Tell me more about why you want to study ${userProfile?.major} in ${userProfile?.targetCountry}.`;
-  };
-
-  const sendMessage = (e) => {
+  // This is the logic you requested, integrated into the component
+  const sendMessage = async (e) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isTyping) return;
 
-    const userMsg = { id: Date.now(), text: input, sender: "user" };
-    setMessages(prev => [...prev, userMsg]);
+    const userInput = input;
+    const userMsg = { id: Date.now(), text: userInput, sender: "user" };
     
-    const currentInput = input;
+    setMessages(prev => [...prev, userMsg]);
     setInput("");
+    setIsTyping(true);
 
-    // AI "Thinking" delay
-    setTimeout(() => {
-      const aiMsg = { 
-        id: Date.now() + 1, 
-        text: generateAIResponse(currentInput), 
+    const BACKEND_URL = "https://ai-counsellor-server-rb2b.onrender.com/api/chat";
+
+    try {
+      const response = await fetch(BACKEND_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: userInput,
+          profile: userProfile // Passing the profile for personalized advice
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const aiMsg = { 
+          id: Date.now() + 1, 
+          text: data.reply, 
+          sender: "ai" 
+        };
+        setMessages(prev => [...prev, aiMsg]);
+      } else {
+        throw new Error(data.error || "Server error");
+      }
+    } catch (err) {
+      console.error("Connection failed:", err);
+      setMessages(prev => [...prev, { 
+        id: Date.now(), 
+        text: "I'm having trouble connecting to my server. Please wait a moment for the Render server to wake up and try again!", 
         sender: "ai" 
-      };
-      setMessages(prev => [...prev, aiMsg]);
-    }, 800);
+      }]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   return (
@@ -74,9 +84,10 @@ export default function ChatAI({ userProfile }) {
             border: m.sender === 'ai' ? '1px solid var(--glass-border)' : 'none',
             marginLeft: m.sender === 'user' ? 'auto' : '0'
           }}>
-            <p style={{ fontSize: '0.9rem', margin: 0 }}>{m.text}</p>
+            <p style={{ fontSize: '0.9rem', margin: 0, color: 'white' }}>{m.text}</p>
           </div>
         ))}
+        {isTyping && <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', fontStyle: 'italic' }}>AI is thinking...</p>}
         <div ref={messagesEndRef} />
       </div>
 
@@ -84,10 +95,14 @@ export default function ChatAI({ userProfile }) {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type a message..."
+          placeholder="Ask about your chances..."
+          disabled={isTyping}
           className="chat-input"
+          style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.2)', color: 'white' }}
         />
-        <button type="submit" className="chat-send-btn">Send</button>
+        <button type="submit" className="chat-send-btn" disabled={isTyping} style={{ padding: '10px 15px', borderRadius: '8px', background: 'var(--primary)', color: 'white', border: 'none', cursor: 'pointer' }}>
+          {isTyping ? "..." : "Send"}
+        </button>
       </form>
     </div>
   );

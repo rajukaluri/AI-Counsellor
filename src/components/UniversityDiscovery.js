@@ -6,14 +6,17 @@ const UniversityDiscovery = ({ userProfile, onLock }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // YOUR LIVE RENDER URL
+  const BACKEND_URL = "https://ai-counsellor-server-rb2b.onrender.com";
+
   useEffect(() => {
     const fetchRecommendations = async () => {
       if (!userProfile) return;
       
       setLoading(true);
       try {
-        // Calling your Node.js server
-        const response = await axios.post('http://localhost:5000/api/recommendations', {
+        // Updated from localhost to your live Render backend
+        const response = await axios.post(`${BACKEND_URL}/api/recommendations`, {
           gpa: userProfile.gpa,
           budget: userProfile.budget
         });
@@ -22,7 +25,8 @@ const UniversityDiscovery = ({ userProfile, onLock }) => {
         setError(null);
       } catch (err) {
         console.error("Fetch error:", err);
-        setError("Failed to load recommendations. Please ensure the server is running.");
+        // Improved error message to explain the "Wake up" time for Render Free Tier
+        setError("The server is waking up. This can take up to 60 seconds on the free tier. Please click Retry.");
       } finally {
         // Small delay to make the AI transition feel smoother
         setTimeout(() => setLoading(false), 800);
@@ -44,8 +48,10 @@ const UniversityDiscovery = ({ userProfile, onLock }) => {
   if (error) {
     return (
       <div className="glass-card" style={{ border: '1px solid #ef4444', padding: '20px', textAlign: 'center' }}>
-        <p style={{ color: '#ef4444' }}>{error}</p>
-        <button className="btn-outline" onClick={() => window.location.reload()}>Retry Connection</button>
+        <p style={{ color: '#ef4444', marginBottom: '15px' }}>{error}</p>
+        <button className="btn-outline" onClick={() => window.location.reload()}>
+          Retry Connection
+        </button>
       </div>
     );
   }
